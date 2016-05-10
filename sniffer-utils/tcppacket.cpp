@@ -15,4 +15,5 @@ TCPPacket::TCPPacket(const u_char *data) : PacketBase(data)
     dest.sin_addr.s_addr = iph->daddr;
     destination = strdup(inet_ntoa(dest.sin_addr));
 
+    type = 2;
 }

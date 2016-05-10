@@ -7,4 +7,5 @@ PacketBase::PacketBase(const u_char* data)
     source = "";
     destination = "";
     this->data = data;
+    type = 0;
 }

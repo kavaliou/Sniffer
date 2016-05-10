@@ -23,18 +23,23 @@ class Sniffer : public QThread
     Q_OBJECT
 
 public:
-    Sniffer(QThread *parent = 0);
+    explicit Sniffer(QThread *parent = 0);
     ~Sniffer();
+
 public slots:
+    void GetPackets(int);
 
 private slots:
-    void savePacket(PacketBase *packet);
+    void savePacket(PacketBase*);
 
 signals:
     void PacketRecieved(PacketBase *packet);
+    void PacketProcessed(PacketBase *packet);
+    void PacketPushed(QList<PacketBase>*);
 
 private:
     QList<PacketBase> *packetList;
+    int filterType;
 
     void processPacket(u_char *args, const pcap_pkthdr *header, const u_char *buffer);
 

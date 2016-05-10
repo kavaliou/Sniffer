@@ -5,15 +5,34 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    InitSniffer();
     ui->setupUi(this);
     InitTableView();
-    InitSniffer();
 }
 
 MainWindow::~MainWindow()
 {
     delete sniffer;
     delete ui;
+}
+
+void MainWindow::PullPackets(QList<PacketBase> *packets) {
+    ui->tableWidget->clear();
+    ui->tableWidget->setRowCount(0);
+    int count = 0;
+    QList<PacketBase>::iterator i;
+    for (i = packets->begin(); i != packets->end(); ++i){
+        char num_buffer [50];
+        sprintf(num_buffer, "%d", count + 1);
+        QString str = QString::fromUtf8(num_buffer);
+
+        ui->tableWidget->insertRow(count);
+        ui->tableWidget->setItem(count, 0, new QTableWidgetItem(str));
+        ui->tableWidget->setItem(count, 1, new QTableWidgetItem(i->source));
+        ui->tableWidget->setItem(count, 2, new QTableWidgetItem(i->destination));
+        ui->tableWidget->setItem(count, 3, new QTableWidgetItem(i->protocol));
+        count++;
+    }
 }
 
 void MainWindow::AddItem(PacketBase *packet)
@@ -36,6 +55,8 @@ void MainWindow::InitSniffer()
     sniffer = new Sniffer();
     sniffer->moveToThread(sniffer);
     sniffer->start();
+
+    connect(sniffer, SIGNAL(PacketPushed(QList<PacketBase>*)), this, SLOT(PullPackets(QList<PacketBase>*)));
     connect(sniffer, SIGNAL(PacketRecieved(PacketBase*)), this, SLOT(AddItem(PacketBase*)));
     connect(this, SIGNAL(destroyed()), sniffer, SLOT(quit()));
 }
@@ -54,3 +75,18 @@ void MainWindow::InitTableView()
     ui->tableWidget->setShowGrid(false);
 }
 
+
+void MainWindow::on_radioAll_clicked()
+{
+    sniffer->GetPackets(0);
+}
+
+void MainWindow::on_radioIP_clicked()
+{
+    sniffer->GetPackets(1);
+}
+
+void MainWindow::on_radioARP_clicked()
+{
+    sniffer->GetPackets(2);
+}

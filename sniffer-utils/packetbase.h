@@ -21,6 +21,13 @@ public:
     char* destination;
     const char* protocol;
     const u_char* data;
+
+    int getTypeID(){
+        return type;
+    }
+
+protected:
+    int type;
 };
 
 #endif // PACKETBASE_H

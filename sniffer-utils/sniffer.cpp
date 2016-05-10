@@ -8,7 +8,8 @@ Sniffer::Sniffer(QThread *parent) :
     QThread(parent)
 {
     packetList = new QList<PacketBase>();
-    connect(this, SIGNAL(PacketRecieved(PacketBase*)), this, SLOT(savePacket(PacketBase*)));
+    connect(this, SIGNAL(PacketProcessed(PacketBase*)), this, SLOT(savePacket(PacketBase*)));
+    filterType = 0;
 }
 
 Sniffer::~Sniffer()
@@ -18,9 +19,48 @@ Sniffer::~Sniffer()
     this->wait();
 }
 
+void Sniffer::GetPackets(int type)
+{
+    filterType = type;
+    QList<PacketBase> *temp = new QList<PacketBase>();
+    QList<PacketBase>::iterator i;
+    switch(type){
+    case 0:
+        emit PacketPushed(packetList);
+        break;
+    case 1:
+        for (i = packetList->begin(); i != packetList->end(); ++i){
+            if (i->getTypeID() == 2 || i->getTypeID() == 3)
+                temp->append(*i);
+        }
+        emit PacketPushed(temp);
+        break;
+    case 2:
+        for (i = packetList->begin(); i != packetList->end(); ++i){
+            if (i->getTypeID() == 4)
+                temp->append(*i);
+        }
+        emit PacketPushed(temp);
+        break;
+    }
+}
+
 void Sniffer::savePacket(PacketBase *packet)
 {
     packetList->append(*packet);
+    switch(filterType){
+    case 0:
+        emit PacketRecieved(packet);
+        break;
+    case 1:
+        if (packet->getTypeID() == 2 || packet->getTypeID() == 3)
+            emit PacketRecieved(packet);
+        break;
+    case 2:
+        if (packet->getTypeID() == 4)
+            emit PacketRecieved(packet);
+        break;
+    }
 }
 
 PacketBase *processPPPoE(const u_char *buffer){
@@ -51,13 +91,12 @@ void Sniffer::processPacket(u_char *args, const pcap_pkthdr *header, const u_cha
 
     switch (ethh->h_proto) {
     case PPPOE_SESSION_PROTOCOL_CODE:
-        emit PacketRecieved(processPPPoE(buffer));
+        emit PacketProcessed(processPPPoE(buffer));
         break;
     case ARP_PROTOCOL_CODE:
-        emit PacketRecieved(new ARPPacket(buffer));
+        emit PacketProcessed(new ARPPacket(buffer));
         break;
     default:
-//        qDebug() << ethh->h_proto;
         break;
     }
 }

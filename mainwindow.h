@@ -22,10 +22,23 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-private slots:
-    void AddItem(PacketBase *packet);
+public slots:
 
-private:    
+private slots:
+    void PullPackets(QList<PacketBase>*);
+    void AddItem(PacketBase*);
+
+    void on_radioAll_clicked();
+
+    void on_radioIP_clicked();
+
+    void on_radioARP_clicked();
+
+signals:
+    void PacketsRequested(int);
+
+
+private:
     Ui::MainWindow *ui;
     Sniffer *sniffer;
 
