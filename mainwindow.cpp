@@ -12,10 +12,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    delete sniffer;
     delete ui;
 }
 
-void MainWindow::AddItem(const char *buffer)
+void MainWindow::AddItem(PacketBase *packet)
 {
     int count = ui->tableWidget->rowCount();
 
@@ -25,7 +26,9 @@ void MainWindow::AddItem(const char *buffer)
 
     ui->tableWidget->insertRow(count);
     ui->tableWidget->setItem(count, 0, new QTableWidgetItem(str));
-    ui->tableWidget->setItem(count, 3, new QTableWidgetItem(buffer));
+    ui->tableWidget->setItem(count, 1, new QTableWidgetItem(packet->source));
+    ui->tableWidget->setItem(count, 2, new QTableWidgetItem(packet->destination));
+    ui->tableWidget->setItem(count, 3, new QTableWidgetItem(packet->protocol));
 }
 
 void MainWindow::InitSniffer()
@@ -33,7 +36,8 @@ void MainWindow::InitSniffer()
     sniffer = new Sniffer();
     sniffer->moveToThread(sniffer);
     sniffer->start();
-    connect(sniffer, SIGNAL(PacketRecieved(const char*)), this, SLOT(AddItem(const char*)));
+    connect(sniffer, SIGNAL(PacketRecieved(PacketBase*)), this, SLOT(AddItem(PacketBase*)));
+    connect(this, SIGNAL(destroyed()), sniffer, SLOT(quit()));
 }
 
 void MainWindow::InitTableView()

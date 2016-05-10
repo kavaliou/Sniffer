@@ -23,7 +23,7 @@ public:
     ~MainWindow();
 
 private slots:
-    void AddItem(const char *buffer);
+    void AddItem(PacketBase *packet);
 
 private:    
     Ui::MainWindow *ui;

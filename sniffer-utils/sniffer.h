@@ -11,9 +11,12 @@
 #include<netinet/ip.h>    //Provides declarations for ip header
 
 #include "protocol_codes.h"
+#include "tcppacket.h"
+#include "udppacket.h"
+#include "arppacket.h"
 
 #include <QThread>
-
+#include <QList>
 
 class Sniffer : public QThread
 {
@@ -21,16 +24,21 @@ class Sniffer : public QThread
 
 public:
     Sniffer(QThread *parent = 0);
-
+    ~Sniffer();
 public slots:
 
+private slots:
+    void savePacket(PacketBase *packet);
+
 signals:
-    void PacketRecieved(const char *protocol);
+    void PacketRecieved(PacketBase *packet);
 
 private:
+    QList<PacketBase> *packetList;
+
+    void processPacket(u_char *args, const pcap_pkthdr *header, const u_char *buffer);
 
 protected:
-    void processPacket(u_char *args, const pcap_pkthdr *header, const u_char *buffer);
     void run();
 };
 
