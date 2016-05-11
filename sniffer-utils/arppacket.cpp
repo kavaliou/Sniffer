@@ -1,6 +1,6 @@
 #include "arppacket.h"
 
-ARPPacket::ARPPacket(const u_char *data) : PacketBase(data)
+ARPPacket::ARPPacket(const u_char *data, const pcap_pkthdr *header) : PacketBase(data)
 {
     protocol = "ARP";
     source = "IntelCor__33:90:23";
@@ -9,7 +9,7 @@ ARPPacket::ARPPacket(const u_char *data) : PacketBase(data)
     offset = 0;
 }
 
-QString ARPPacket::ParseHeader(const u_char *data) {
+QString ARPPacket::ParseHeader(const u_char *data, int size) {
     QString resultString;
     resultString = QString::fromUtf8("******ARP Packet********\n");
     return resultString;

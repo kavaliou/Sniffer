@@ -64,15 +64,15 @@ void Sniffer::savePacket(PacketBase *packet)
     }
 }
 
-PacketBase *processPPPoE(const u_char *buffer){
+PacketBase *processPPPoE(const u_char *buffer, const pcap_pkthdr *header){
     struct iphdr *iph = (struct iphdr*)(buffer + 22);
     switch (iph->protocol) {
     case 6: {
-        TCPPacket* packet = new TCPPacket(buffer, 22);
+        TCPPacket* packet = new TCPPacket(buffer, header, 22);
         return packet;
     }
     case 17: {
-        UDPPacket* packet = new UDPPacket(buffer, 22);
+        UDPPacket* packet = new UDPPacket(buffer, header, 22);
         return packet;
     }
     default: {
@@ -82,16 +82,16 @@ PacketBase *processPPPoE(const u_char *buffer){
     }
 }
 
-PacketBase *processIP(const u_char *buffer){
+PacketBase *processIP(const u_char *buffer, const pcap_pkthdr *header){
     struct iphdr *iph = (struct iphdr*)(buffer + 14);
     PacketBase* packet;
     switch (iph->protocol) {
     case 6: {
-        packet = new TCPPacket(buffer, 14);
+        packet = new TCPPacket(buffer, header, 14);
         return packet;
     }
     case 17: {
-        packet = new UDPPacket(buffer, 14);
+        packet = new UDPPacket(buffer, header, 14);
         return packet;
     }
     default: {
@@ -110,13 +110,13 @@ void Sniffer::processPacket(u_char *args, const pcap_pkthdr *header, const u_cha
 
     switch (ethh->h_proto) {
     case PPPOE_SESSION_PROTOCOL_CODE:
-        emit PacketProcessed(processPPPoE(buffer));
+        emit PacketProcessed(processPPPoE(buffer, header));
         break;
     case IP_PROTOCOL_CODE:
-        emit PacketProcessed(processIP(buffer));
+        emit PacketProcessed(processIP(buffer, header));
         break;
     case ARP_PROTOCOL_CODE:
-        emit PacketProcessed(new ARPPacket(buffer));
+        emit PacketProcessed(new ARPPacket(buffer, header));
         break;
     default:
         break;

@@ -6,6 +6,7 @@
 #include <string.h> //for memset
 #include <cstring>
 
+#include <pcap.h>
 #include <sys/types.h>
 #include <arpa/inet.h> // for inet_ntoa()
 #include <net/ethernet.h>
@@ -26,7 +27,7 @@ public:
     int id;
     QString parsedData;
 
-    QString ParseHeader(const u_char *data);
+    QString ParseHeader(const u_char *data, int size);
 
     int getTypeID(){
         return type;

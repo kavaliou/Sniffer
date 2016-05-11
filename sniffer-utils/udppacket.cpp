@@ -1,6 +1,6 @@
 #include "udppacket.h"
 
-UDPPacket::UDPPacket(const u_char *data, int offset) : PacketBase(data)
+UDPPacket::UDPPacket(const u_char *data, const pcap_pkthdr *header, int offset) : PacketBase(data)
 {
     protocol ="UDP";
 
@@ -17,10 +17,10 @@ UDPPacket::UDPPacket(const u_char *data, int offset) : PacketBase(data)
 
     type = 3;
     this->offset = offset;
-    parsedData = this->ParseHeader(data);
+    parsedData = this->ParseHeader(data, header->len);
 }
 
-QString UDPPacket::ParseHeader(const u_char *data) {
+QString UDPPacket::ParseHeader(const u_char *data, int size) {
     QString resultString;
     resultString = QString::fromUtf8("******UDP Packet********\n");
     return resultString;

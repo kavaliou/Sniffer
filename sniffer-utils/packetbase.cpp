@@ -9,7 +9,7 @@ PacketBase::PacketBase(const u_char* data)
     type = 0;
 }
 
-QString PacketBase::ParseHeader(const u_char *data){
+QString PacketBase::ParseHeader(const u_char *data, int size){
     (void)data;
     return NULL;
 }
