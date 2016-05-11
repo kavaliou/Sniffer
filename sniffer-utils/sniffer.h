@@ -28,6 +28,7 @@ public:
 
 public slots:
     void GetPackets(int);
+    QString GetPacketParsedData(int);
 
 private slots:
     void savePacket(PacketBase*);
@@ -42,7 +43,6 @@ private:
     int filterType;
 
     void processPacket(u_char *args, const pcap_pkthdr *header, const u_char *buffer);
-
 protected:
     void run();
 };

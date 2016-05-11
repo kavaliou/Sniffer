@@ -34,6 +34,8 @@ private slots:
 
     void on_radioARP_clicked();
 
+    void on_tableWidget_itemClicked(QTableWidgetItem *item);
+
 signals:
     void PacketsRequested(int);
 

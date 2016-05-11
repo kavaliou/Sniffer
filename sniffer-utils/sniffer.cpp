@@ -47,6 +47,7 @@ void Sniffer::GetPackets(int type)
 
 void Sniffer::savePacket(PacketBase *packet)
 {
+    packet->id = packetList->count() + 1;
     packetList->append(*packet);
     switch(filterType){
     case 0:
@@ -65,14 +66,32 @@ void Sniffer::savePacket(PacketBase *packet)
 
 PacketBase *processPPPoE(const u_char *buffer){
     struct iphdr *iph = (struct iphdr*)(buffer + 22);
-    PacketBase* packet;
     switch (iph->protocol) {
     case 6: {
-        packet = new TCPPacket(buffer);
+        TCPPacket* packet = new TCPPacket(buffer, 22);
         return packet;
     }
     case 17: {
-        packet = new UDPPacket(buffer);
+        UDPPacket* packet = new UDPPacket(buffer, 22);
+        return packet;
+    }
+    default: {
+        PacketBase* packet = new PacketBase(buffer);
+        return packet;
+    }
+    }
+}
+
+PacketBase *processIP(const u_char *buffer){
+    struct iphdr *iph = (struct iphdr*)(buffer + 14);
+    PacketBase* packet;
+    switch (iph->protocol) {
+    case 6: {
+        packet = new TCPPacket(buffer, 14);
+        return packet;
+    }
+    case 17: {
+        packet = new UDPPacket(buffer, 14);
         return packet;
     }
     default: {
@@ -93,11 +112,24 @@ void Sniffer::processPacket(u_char *args, const pcap_pkthdr *header, const u_cha
     case PPPOE_SESSION_PROTOCOL_CODE:
         emit PacketProcessed(processPPPoE(buffer));
         break;
+    case IP_PROTOCOL_CODE:
+        emit PacketProcessed(processIP(buffer));
+        break;
     case ARP_PROTOCOL_CODE:
         emit PacketProcessed(new ARPPacket(buffer));
         break;
     default:
         break;
+    }
+}
+
+QString Sniffer::GetPacketParsedData(int id)
+{
+    QList<PacketBase>::iterator i;
+    for (i = packetList->begin(); i != packetList->end(); ++i){
+        if ((*i).id == id){
+            return (*i).parsedData;
+        }
     }
 }
 

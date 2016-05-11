@@ -6,6 +6,10 @@ PacketBase::PacketBase(const u_char* data)
     protocol = "OTHER";
     source = "";
     destination = "";
-    this->data = data;
     type = 0;
+}
+
+QString PacketBase::ParseHeader(const u_char *data){
+    (void)data;
+    return NULL;
 }

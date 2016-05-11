@@ -7,6 +7,7 @@ class ARPPacket : public PacketBase
 {
 public:
     ARPPacket(const u_char *data);
+    QString ParseHeader(const u_char *data);
 };
 
 #endif // ARPPACKET_H

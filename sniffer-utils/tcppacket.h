@@ -6,7 +6,8 @@
 class TCPPacket : public PacketBase
 {
 public:
-    TCPPacket(const u_char *data);
+    TCPPacket(const u_char *data, int offset);
+    QString ParseHeader(const u_char *data);
 };
 
 #endif // TCPPACKET_H

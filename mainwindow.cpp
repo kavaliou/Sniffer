@@ -23,7 +23,7 @@ void MainWindow::PullPackets(QList<PacketBase> *packets) {
     QList<PacketBase>::iterator i;
     for (i = packets->begin(); i != packets->end(); ++i){
         char num_buffer [50];
-        sprintf(num_buffer, "%d", count + 1);
+        sprintf(num_buffer, "%d", i->id);
         QString str = QString::fromUtf8(num_buffer);
 
         ui->tableWidget->insertRow(count);
@@ -40,7 +40,7 @@ void MainWindow::AddItem(PacketBase *packet)
     int count = ui->tableWidget->rowCount();
 
     char num_buffer [50];
-    sprintf(num_buffer, "%d", count + 1);
+    sprintf(num_buffer, "%d", packet->id);
     QString str = QString::fromUtf8(num_buffer);
 
     ui->tableWidget->insertRow(count);
@@ -75,7 +75,6 @@ void MainWindow::InitTableView()
     ui->tableWidget->setShowGrid(false);
 }
 
-
 void MainWindow::on_radioAll_clicked()
 {
     sniffer->GetPackets(0);
@@ -89,4 +88,12 @@ void MainWindow::on_radioIP_clicked()
 void MainWindow::on_radioARP_clicked()
 {
     sniffer->GetPackets(2);
+}
+
+void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
+{
+    QTableWidgetItem* it = item->tableWidget()->item(item->row(), 0);
+    QString str = sniffer->GetPacketParsedData(it->text().toInt());
+    ui->textEdit->clear();
+    ui->textEdit->setText(str);
 }

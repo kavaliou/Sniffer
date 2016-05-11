@@ -1,11 +1,11 @@
 #include "udppacket.h"
 
-UDPPacket::UDPPacket(const u_char *data) : PacketBase(data)
+UDPPacket::UDPPacket(const u_char *data, int offset) : PacketBase(data)
 {
     protocol ="UDP";
 
     struct sockaddr_in src, dest;
-    struct iphdr *iph = (struct iphdr *)(data + 22);
+    struct iphdr *iph = (struct iphdr *)(data + offset);
 
     memset(&src, 0, sizeof(src));
     src.sin_addr.s_addr = iph->saddr;
@@ -16,4 +16,12 @@ UDPPacket::UDPPacket(const u_char *data) : PacketBase(data)
     destination = strdup(inet_ntoa(dest.sin_addr));
 
     type = 3;
+    this->offset = offset;
+    parsedData = this->ParseHeader(data);
+}
+
+QString UDPPacket::ParseHeader(const u_char *data) {
+    QString resultString;
+    resultString = QString::fromUtf8("******UDP Packet********\n");
+    return resultString;
 }

@@ -1,6 +1,8 @@
 #ifndef PACKETBASE_H
 #define PACKETBASE_H
 
+#include <QString>
+
 #include <string.h> //for memset
 #include <cstring>
 
@@ -20,11 +22,16 @@ public:
     char* source;
     char* destination;
     const char* protocol;
-    const u_char* data;
+    int offset;
+    int id;
+    QString parsedData;
+
+    QString ParseHeader(const u_char *data);
 
     int getTypeID(){
         return type;
     }
+
 
 protected:
     int type;
