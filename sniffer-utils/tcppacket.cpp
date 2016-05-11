@@ -22,64 +22,9 @@ TCPPacket::TCPPacket(const u_char *data, const pcap_pkthdr *header, int offset) 
     parsedData = this->ParseHeader(data, header->len);
 }
 
-QString Data(const u_char* data, int size){
-    QString resultString, dString = QString::fromUtf8("");
-    char num_buffer [100];
-    resultString = QString::fromUtf8("       DATA Dump       \n");
-
-    int i , j;
-    for(i=0 ; i < size ; i++)
-    {
-        if( i!=0 && i%16==0)   //if one line of hex printing is complete...
-        {
-            sprintf(num_buffer, "         ");
-            resultString += QString::fromUtf8(num_buffer);
-            for(j=i-16 ; j<i ; j++)
-            {
-                if(data[j]>=32 && data[j]<=128)
-                    sprintf(num_buffer, "%c", (unsigned char)data[j]);
-                else sprintf(num_buffer, ".");
-                dString += QString::fromUtf8(num_buffer);
-            }
-            sprintf(num_buffer, "\n");
-            dString += QString::fromUtf8(num_buffer);
-            resultString += QString::fromUtf8(num_buffer);
-        }
-        sprintf(num_buffer, "%02X ",(unsigned int)data[i]);
-        resultString += QString::fromUtf8(num_buffer);
-        if( i==size-1)  //print the last spaces
-        {
-            for(j=0;j<15-i%16;j++)
-            {
-              sprintf(num_buffer, "   "); //extra spaces
-              resultString += QString::fromUtf8(num_buffer);
-            }
-            for(j=i-i%16 ; j<=i ; j++)
-            {
-                if(data[j]>=32 && data[j]<=128)
-                {
-                  sprintf(num_buffer, "%c",(unsigned char)data[j]);
-                  dString += QString::fromUtf8(num_buffer);
-                }
-                else
-                {
-                  sprintf(num_buffer, ".");
-                  dString += QString::fromUtf8(num_buffer);
-                }
-            }
-            sprintf(num_buffer, "\n" );
-            dString += QString::fromUtf8(num_buffer);
-            resultString += QString::fromUtf8(num_buffer);
-        }
-    }
-    sprintf(num_buffer, "\n");
-    resultString += QString::fromUtf8(num_buffer);
-    return resultString + dString;
-}
-
 QString TCPPacket::ParseHeader(const u_char *data, int size) {
-    struct tcphdr *tcph=(struct tcphdr*)(data + offset);
-    int header_size = offset + sizeof(struct tcphdr);
+    struct tcphdr *tcph=(struct tcphdr*)(data + offset + sizeof(struct iphdr));
+    int header_size = offset + sizeof(struct tcphdr) + sizeof(struct iphdr);
     QString resultString;
     char num_buffer [100];
     resultString = QString::fromUtf8("*****TCP Packet***********\n");
@@ -111,7 +56,7 @@ QString TCPPacket::ParseHeader(const u_char *data, int size) {
     resultString += QString::fromUtf8(num_buffer);
     sprintf(num_buffer, "   |-Urgent Pointer : %d\n",tcph->urg_ptr);
     resultString += QString::fromUtf8(num_buffer);
-    resultString += Data(data + header_size, header_size);
+    resultString += Data(data + header_size, size - header_size);
     return resultString;
 
 }

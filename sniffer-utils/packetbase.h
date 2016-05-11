@@ -38,4 +38,6 @@ protected:
     int type;
 };
 
+QString Data(const u_char* data, int size);
+
 #endif // PACKETBASE_H

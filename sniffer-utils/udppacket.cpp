@@ -1,4 +1,6 @@
 #include "udppacket.h"
+#include <QDebug>
+
 
 UDPPacket::UDPPacket(const u_char *data, const pcap_pkthdr *header, int offset) : PacketBase(data)
 {
@@ -20,8 +22,25 @@ UDPPacket::UDPPacket(const u_char *data, const pcap_pkthdr *header, int offset) 
     parsedData = this->ParseHeader(data, header->len);
 }
 
+
 QString UDPPacket::ParseHeader(const u_char *data, int size) {
+    struct udphdr *udph=(struct udphdr*)(data + offset + sizeof(struct iphdr));
+
+    int header_size = offset + sizeof(struct udphdr) + sizeof(struct iphdr);
     QString resultString;
-    resultString = QString::fromUtf8("******UDP Packet********\n");
+    char num_buffer [100];
+    resultString = QString::fromUtf8("*****UDP Packet***********\n");
+    resultString += QString::fromUtf8(num_buffer);
+    sprintf(num_buffer, "   |-Source Port      : %d\n" , ntohs(udph->source));
+    resultString += QString::fromUtf8(num_buffer);
+    sprintf(num_buffer, "   |-Destination Port : %d\n" , ntohs(udph->dest));
+    resultString += QString::fromUtf8(num_buffer);
+    sprintf(num_buffer, "   |-UDP Length       : %d\n" , ntohs(udph->len));
+    resultString += QString::fromUtf8(num_buffer);
+    sprintf(num_buffer, "   |-UDP Checksum     : %d\n" , ntohs(udph->check));
+    resultString += QString::fromUtf8(num_buffer);
+
+    resultString += Data(data + header_size, size - header_size);
     return resultString;
+
 }
